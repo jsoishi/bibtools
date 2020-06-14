@@ -7,6 +7,7 @@ Tools relating to working with NASA's ADS.
 """
 
 from __future__ import absolute_import, division, print_function, unicode_literals
+import codecs
 import json
 
 from .util import *
@@ -96,7 +97,7 @@ def autolearn_bibcode (app, bibcode):
 
 # Searching
 
-def _run_ads_search (app, searchterms, filterterms, nrows=50):
+def _run_ads_search (app, searchterms, filterterms, nrows=50, field_list='author,bibcode,title'):
     # TODO: access to more API args
     apikey = app.cfg.get_or_die ('api-keys', 'ads')
 
@@ -105,14 +106,16 @@ def _run_ads_search (app, searchterms, filterterms, nrows=50):
     for ft in filterterms:
         q.append (('fq', ft))
 
-    q.append (('fl', 'author,bibcode,title')) # fields list
+    q.append (('fl', field_list)) # fields list
     q.append (('rows', nrows))
 
     url = 'http://api.adsabs.harvard.edu/v1/search/query?' + wu.urlencode (q)
 
     opener = wu.build_opener ()
     opener.addheaders = [('Authorization', 'Bearer:' + apikey)]
-    return json.load (opener.open (url))
+    reader= codecs.getreader("utf-8")
+    
+    return json.load (reader(opener.open (url)))
 
 
 def search_ads (app, terms, raw=False, large=False):

@@ -27,7 +27,8 @@ def init (app):
     import os.path
 
     init = datastream ('schema.sql').read ()
-
+    if type(init) is bytes:
+        init = init.decode('utf-8')
     mkdir_p (bibpath ())
 
     if os.path.exists (dbpath):
